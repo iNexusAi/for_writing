@@ -113,6 +113,9 @@ def initialize_session_state():
         st.session_state.writing_complete = False
 
 def main_chat():
+    # Debug info visibile nell'UI
+    st.write("DEBUG - Stato iniziale:", dict(st.session_state))
+    
     st.title("💭 iNexus for Writing")
     st.markdown("### Your AI Article Writing Assistant")
     
@@ -120,44 +123,52 @@ def main_chat():
     
     # Topic selection if not already chosen
     if not st.session_state.topic:
+        st.write("DEBUG - Nessun topic presente")
         st.markdown("### 📝 Prima di iniziare")
         topic = st.text_input("Su quale argomento dobbiamo scrivere l'articolo?")
         
         if st.button("Inizia", type="primary"):
+            st.write(f"DEBUG - Bottone premuto con topic: {topic}")
             if topic:
-                st.session_state.topic = topic
-                
-                # Crea container per progress bar e log
-                progress_placeholder = st.empty()
-                status_placeholder = st.empty()
-                log_placeholder = st.empty()
-                
-                with st.spinner("Generazione in corso..."):
-                    progress_bar = progress_placeholder.progress(0)
-                    streamlit_handler = StreamlitHandler(progress_bar, status_placeholder)
-                    logging.getLogger().addHandler(streamlit_handler)
+                try:
+                    st.write("DEBUG - Inizio generazione")
+                    st.session_state.topic = topic
                     
-                    try:
-                        result = generate_instructions(LLM, topic)
+                    progress_placeholder = st.empty()
+                    status_placeholder = st.empty()
+                    log_placeholder = st.empty()
+                    
+                    with st.spinner("Generazione in corso..."):
+                        progress_bar = progress_placeholder.progress(0)
+                        streamlit_handler = StreamlitHandler(progress_bar, status_placeholder)
+                        logging.getLogger().addHandler(streamlit_handler)
                         
-                        if result.get('plan'):
+                        st.write("DEBUG - Chiamata a generate_instructions")
+                        result = generate_instructions(LLM, topic)
+                        st.write("DEBUG - Risultato:", result)
+                        
+                        if result and result.get('plan'):
+                            st.write("DEBUG - Piano generato")
                             st.session_state.plan = result['plan']
                             if result.get('final_doc'):
+                                st.write("DEBUG - Documento generato")
                                 st.session_state.article = result['final_doc']
                                 st.session_state.writing_complete = True
                                 st.balloons()
-                                # Rimossi i messaggi di sistema
                         
-                    except Exception as e:
-                        st.error(f"Errore durante la generazione: {str(e)}")
-                    
-                    finally:
-                        logging.getLogger().removeHandler(streamlit_handler)
+                except Exception as e:
+                    st.write("DEBUG - Errore:", str(e))
+                    st.error(f"Errore durante la generazione: {str(e)}")
+                
+                finally:
+                    logging.getLogger().removeHandler(streamlit_handler)
+                    st.write("DEBUG - Stato finale:", dict(st.session_state))
                 
                 st.rerun()
             else:
                 st.warning("Per favore, inserisci un argomento")
     else:
+        st.write(f"DEBUG - Rendering con topic: {st.session_state.topic}")
         # Sidebar con piano e articolo
         with st.sidebar:
             st.markdown(f"**Argomento:** {st.session_state.topic}")
