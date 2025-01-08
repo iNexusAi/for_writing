@@ -163,34 +163,40 @@ def main_chat():
             st.markdown(f"**Argomento:** {st.session_state.topic}")
             
             with st.expander("📋 Piano dell'Articolo", expanded=True):
-                st.text_area(
-                    label="Piano dell'Articolo",
-                    value=st.session_state.plan,
-                    height=300,
-                    key="piano_text"
-                )
-                st.download_button(
-                    label="📥 Download Piano",
-                    data=st.session_state.plan,
-                    file_name=f"piano_{st.session_state.topic.lower().replace(' ', '_')}.md",
-                    mime="text/markdown",
-                    key="download_piano"
-                )
+                if st.session_state.plan:  # Verifica che il piano esista
+                    st.text_area(
+                        label="Piano dell'Articolo",
+                        value=st.session_state.plan,
+                        height=300,
+                        key="piano_text"
+                    )
+                    st.download_button(
+                        label="📥 Download Piano",
+                        data=st.session_state.plan or "",  # Fornisce stringa vuota come fallback
+                        file_name=f"piano_{st.session_state.topic.lower().replace(' ', '_')}.md",
+                        mime="text/markdown",
+                        key="download_piano"
+                    )
+                else:
+                    st.info("Piano non ancora generato")
             
             with st.expander("📄 Articolo Completo", expanded=True):
-                st.text_area(
-                    label="Articolo Completo",
-                    value=st.session_state.article,
-                    height=500,
-                    key="articolo_text"
-                )
-                st.download_button(
-                    label="📥 Download Articolo",
-                    data=st.session_state.article,
-                    file_name=f"articolo_{st.session_state.topic.lower().replace(' ', '_')}.md",
-                    mime="text/markdown",
-                    key="download_articolo"
-                )
+                if st.session_state.article:  # Verifica che l'articolo esista
+                    st.text_area(
+                        label="Articolo Completo",
+                        value=st.session_state.article,
+                        height=500,
+                        key="articolo_text"
+                    )
+                    st.download_button(
+                        label="📥 Download Articolo",
+                        data=st.session_state.article or "",  # Fornisce stringa vuota come fallback
+                        file_name=f"articolo_{st.session_state.topic.lower().replace(' ', '_')}.md",
+                        mime="text/markdown",
+                        key="download_articolo"
+                    )
+                else:
+                    st.info("Articolo non ancora generato")
             
             if st.button("Cambia Argomento", type="primary"):
                 st.session_state.topic = None
