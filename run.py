@@ -101,6 +101,7 @@ LLM = llm_factory.get_llm(
 )
 
 def initialize_session_state():
+    # Reset completo dello stato se necessario
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "topic" not in st.session_state:
@@ -113,7 +114,6 @@ def initialize_session_state():
         st.session_state.writing_complete = False
 
 def main_chat():
-    # Debug info visibile nell'UI
     st.write("DEBUG - Stato iniziale:", dict(st.session_state))
     
     st.title("💭 iNexus for Writing")
@@ -121,13 +121,21 @@ def main_chat():
     
     initialize_session_state()
     
+    # Aggiungiamo un pulsante per resettare completamente lo stato
+    if st.sidebar.button("Reset Applicazione"):
+        st.write("DEBUG - Reset richiesto")
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
+    
     # Topic selection if not already chosen
     if not st.session_state.topic:
-        st.write("DEBUG - Nessun topic presente")
+        st.write("DEBUG - Mostrando form input")
         st.markdown("### 📝 Prima di iniziare")
-        topic = st.text_input("Su quale argomento dobbiamo scrivere l'articolo?")
+        topic = st.text_input("Su quale argomento dobbiamo scrivere l'articolo?", key="topic_input")
+        st.write("DEBUG - Valore input:", topic)
         
-        if st.button("Inizia", type="primary"):
+        if st.button("Inizia", type="primary", key="start_button"):
             st.write(f"DEBUG - Bottone premuto con topic: {topic}")
             if topic:
                 try:
