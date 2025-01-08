@@ -6,28 +6,6 @@ from utils.models import LLMFactory
 from invoke import generate_instructions
 import logging
 import time
-import openai
-from openai import OpenAI
-
-# ATTENZIONE: Questa è una soluzione temporanea solo per testing
-# NON committare mai la chiave API nel codice!
-OPENAI_API_KEY = "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" # Inserisci qui la tua chiave
-
-# Configurazione diretta di OpenAI
-client = OpenAI(api_key=OPENAI_API_KEY)
-
-st.write("DEBUG - Chiave API configurata:", OPENAI_API_KEY[:10] + "...")
-
-# Test immediato della connessione
-try:
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": "Say hello!"}],
-        temperature=0.7
-    )
-    st.write("DEBUG - Test connessione OpenAI riuscito!")
-except Exception as e:
-    st.write("DEBUG - Errore connessione OpenAI:", str(e))
 
 # Configure logging per catturare i messaggi anche nell'UI
 class StreamlitHandler(logging.Handler):
