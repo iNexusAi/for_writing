@@ -1,0 +1,17 @@
+I need you to help me break down the following writing instruction into multiple sub-tasks. Each sub-task will guide the writing of a paragraph in Italian. Each sub-task should include the main points and word count requirements for that paragraph.
+
+The writing instruction is:
+
+{instructions}
+
+Please break it down in the following format, with each sub-task on a new line:
+
+Paragraph 1 - Main Point: [Describe the main point of the paragraph, in detail] - Word Count: [Word count requirement, e.g. 500 words]
+
+Paragraph 2 - Main Point: [Describe the main point of the paragraph, in detail] - Word Count: [Word count requirement, e.g. 1000 words]
+
+... other Paragraph 
+
+IMPORTANT: The final article must be written in Italian, so plan the paragraphs accordingly.
+
+Make sure each sub-task is clear and specific, and all sub-tasks cover the entire content of the writing instruction. Don't break down the sub-tasks too finely; each sub-task's paragraph should not be less than 200 words and not more than 1000 words. Do not generate other content. As this is a work in progress, omit open conclusions or other rhetorical hooks.
