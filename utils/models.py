@@ -7,6 +7,7 @@ from typing import Optional, Literal, Dict
 import os
 from dotenv import load_dotenv
 from enum import Enum
+import streamlit as st
 
 class OllamaModels(Enum):
     """Enum per i modelli Ollama supportati"""
@@ -21,24 +22,6 @@ class HFModels(Enum):
 class LLMFactory:
     """Factory class per gestire diversi modelli LLM"""
     
-    USECASE_CONFIGS: Dict[str, Dict] = {
-        'article_writing': {
-            'provider': 'ollama',
-            'model': OllamaModels.MISTRAL.value,
-            'temperature': 0.7
-        },
-        'general': {
-            'provider': 'claude',
-            'model': "claude-3-sonnet-20240229",
-            'temperature': 0.7
-        },
-        'llama_hf': {
-            'provider': 'huggingface',
-            'model': HFModels.LLAMA.value,
-            'temperature': 0.7
-        }
-    }
-    
     def __init__(self):
         load_dotenv()
         self._validate_env()
@@ -48,21 +31,18 @@ class LLMFactory:
         required_vars = {
             'ANTHROPIC_API_KEY': 'Claude',
             'OPENAI_API_KEY': 'OpenAI',
-            'OLLAMA_API_BASE': 'Ollama',
             'HUGGINGFACEHUB_API_TOKEN': 'HuggingFace'
         }
         
         for var, service in required_vars.items():
-            if not os.getenv(var) and var != 'OLLAMA_API_BASE':
+            if not (os.getenv(var) or st.secrets.get(var)):
                 print(f"⚠️ Warning: {var} non trovata. {service} non sarà disponibile.")
 
     def get_llm(self, 
                 provider: Literal['claude', 'openai', 'ollama', 'huggingface'] = 'claude',
                 model: Optional[str] = None,
                 temperature: float = 0.1) -> BaseLLM:
-        """
-        Restituisce l'istanza LLM richiesta
-        """
+        """Restituisce l'istanza LLM richiesta"""
         if provider == 'claude':
             return self._get_claude(model, temperature)
         elif provider == 'openai':
@@ -76,31 +56,32 @@ class LLMFactory:
 
     def _get_claude(self, model: Optional[str], temperature: float) -> ChatAnthropic:
         """Configura e restituisce un'istanza Claude"""
-        if not os.getenv('ANTHROPIC_API_KEY'):
-            raise ValueError("ANTHROPIC_API_KEY non trovata nelle variabili d'ambiente")
+        api_key = os.getenv('ANTHROPIC_API_KEY') or st.secrets.get('ANTHROPIC_API_KEY')
+        if not api_key:
+            raise ValueError("ANTHROPIC_API_KEY non trovata nelle variabili d'ambiente o nei secrets")
             
         return ChatAnthropic(
             model=model or "claude-3-sonnet-20240229",
             temperature=temperature,
-            anthropic_api_key=os.getenv('ANTHROPIC_API_KEY')
+            anthropic_api_key=api_key
         )
 
     def _get_openai(self, model: Optional[str], temperature: float) -> ChatOpenAI:
         """Configura e restituisce un'istanza OpenAI"""
-        if not os.getenv('OPENAI_API_KEY'):
-            raise ValueError("OPENAI_API_KEY non trovata nelle variabili d'ambiente")
+        api_key = os.getenv('OPENAI_API_KEY') or st.secrets.get('OPENAI_API_KEY')
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY non trovata nelle variabili d'ambiente o nei secrets")
             
         return ChatOpenAI(
             model=model or "gpt-3.5-turbo",
             temperature=temperature,
-            api_key=os.getenv('OPENAI_API_KEY')
+            api_key=api_key
         )
 
     def _get_ollama(self, model: Optional[str], temperature: float) -> Ollama:
         """Configura e restituisce un'istanza Ollama"""
         base_url = os.getenv('OLLAMA_API_BASE', 'http://localhost:11434')
         
-        # Valida che il modello sia uno di quelli supportati
         if model and model not in [m.value for m in OllamaModels]:
             raise ValueError(f"Modello Ollama non supportato. Usa uno tra: {', '.join([m.value for m in OllamaModels])}")
         
@@ -112,16 +93,16 @@ class LLMFactory:
 
     def _get_huggingface(self, model: Optional[str], temperature: float) -> HuggingFaceHub:
         """Configura e restituisce un'istanza HuggingFaceHub"""
-        if not os.getenv('HUGGINGFACEHUB_API_TOKEN'):
-            raise ValueError("HUGGINGFACEHUB_API_TOKEN non trovata nelle variabili d'ambiente")
+        api_key = os.getenv('HUGGINGFACEHUB_API_TOKEN') or st.secrets.get('HUGGINGFACEHUB_API_TOKEN')
+        if not api_key:
+            raise ValueError("HUGGINGFACEHUB_API_TOKEN non trovata nelle variabili d'ambiente o nei secrets")
         
-        # Valida che il modello sia uno di quelli supportati
         if model and model not in [m.value for m in HFModels]:
             raise ValueError(f"Modello HuggingFace non supportato. Usa uno tra: {', '.join([m.value for m in HFModels])}")
         
         return HuggingFaceHub(
             repo_id=model or HFModels.LLAMA.value,
-            huggingfacehub_api_token=os.getenv('HUGGINGFACEHUB_API_TOKEN'),
+            huggingfacehub_api_token=api_key,
             model_kwargs={
                 "temperature": temperature,
                 "max_length": 2048,
