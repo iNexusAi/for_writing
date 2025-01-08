@@ -122,21 +122,28 @@ def main_chat():
     initialize_session_state()
     
     # Aggiungiamo un pulsante per resettare completamente lo stato
-    if st.sidebar.button("Reset Applicazione"):
+    if st.sidebar.button("Reset Applicazione", key="reset_button"):
         st.write("DEBUG - Reset richiesto")
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
     
     # Topic selection if not already chosen
-    if not st.session_state.topic:
+    if not st.session_state.get('topic'):
         st.write("DEBUG - Mostrando form input")
         st.markdown("### 📝 Prima di iniziare")
-        topic = st.text_input("Su quale argomento dobbiamo scrivere l'articolo?", key="topic_input")
-        st.write("DEBUG - Valore input:", topic)
         
-        if st.button("Inizia", type="primary", key="start_button"):
-            st.write(f"DEBUG - Bottone premuto con topic: {topic}")
+        # Creiamo un form per l'input
+        with st.form(key='topic_form'):
+            topic = st.text_input(
+                "Su quale argomento dobbiamo scrivere l'articolo?",
+                key="topic_input",
+                value="" if "topic_input" not in st.session_state else st.session_state.topic_input
+            )
+            submit_button = st.form_submit_button("Inizia", type="primary")
+            
+        if submit_button:
+            st.write(f"DEBUG - Form sottomesso con topic: {topic}")
             if topic:
                 try:
                     st.write("DEBUG - Inizio generazione")
