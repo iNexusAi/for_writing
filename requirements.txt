@@ -1,20 +1,12 @@
 # Core dependencies
 streamlit
-python-dotenv
 
 # LangChain ecosystem
 langchain
-langchain-anthropic
-langchain-openai
 langchain-community
-langchain-core
-langchain-ollama
 
 # Graph dependencies
 langgraph>=0.0.27
 
 # Type hints
 typing-extensions
-
-# Additional utilities
-huggingface-hub

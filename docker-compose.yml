@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  inexus-writer:    # Nuovo nome del servizio
+    build: .
+    container_name: inexus-writer-pro
+    ports:
+      - "7864:8501"    # Modificato: 8501 è la porta interna di default di Streamlit
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - .:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501"]  # Modificato: check sulla porta 8501
+      interval: 30s
+      timeout: 10s
+      retries: 3 
