@@ -2,8 +2,11 @@ version: '3.8'
 
 services:
   inexus-writer:    # Nuovo nome del servizio
-    build: .
+    image: rpg-doc-analyzer    # Usa l'immagine esistente come base
     container_name: inexus-writer-pro
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "7864:8501"    # Modificato: 8501 è la porta interna di default di Streamlit
     environment:
