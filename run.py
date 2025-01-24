@@ -1,13 +1,264 @@
-# run.py
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from utils.models import LLMFactory
 from invoke import generate_instructions
 import logging
 import time
+from LLMs.llm import LLM
+from datetime import datetime
 
-# Configure logging per catturare i messaggi anche nell'UI
+def load_custom_css():
+    # Carica il CSS da file esterno
+    with open('static/style.css', 'r') as f:
+        st.markdown(f"""
+            <style>
+                {f.read()}
+            </style>
+        """, unsafe_allow_html=True)
+
+def main_chat():
+    load_custom_css()
+    initialize_session_state()
+    
+    # Wrapper per il contenuto principale
+    st.markdown('<div class="main-content">', unsafe_allow_html=True)
+    
+    # Enhanced header
+    st.markdown("""
+        <div class="main-header">
+            <h1>✍️ iNexus Writer Pro</h1>
+            <p style="color:#fff; margin-top:-2.5rem;">AI Powered by <a href="https://inexus.it" target="_blank" style="color:#fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.5); padding-bottom: 2px;">iNexus</a></p>    
+            <h3 style="color:#fff; margin-top: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 400; font-size: 1.4rem; opacity: 0.9;">
+                Genera contenuti ottimizzati e professionali con tecnologie AI all'avanguardia
+            </h3>
+        </div>
+        <div style="margin-bottom: 4rem;"></div>
+    """, unsafe_allow_html=True)
+    
+    if not st.session_state.topic:
+        # Form per input e pulsante
+        with st.form(key="input_form"):
+            topic = st.text_input(
+                "Argomento",
+                placeholder="Es: Intelligenza Artificiale nel 2024",
+                help="Inserisci l'argomento principale del tuo articolo",
+                label_visibility="collapsed"
+            )
+            
+            col1, col2, col3 = st.columns([1,2,1])
+            with col2:
+                submitted = st.form_submit_button(
+                    "🚀 Inizia a Scrivere",
+                    type="primary",
+                    use_container_width=True
+                )
+                
+                # Footer con anno dinamico
+                st.markdown(f"""
+                    <div style="text-align: center; margin-top: 2rem; color: #666; font-size: 0.9rem; font-family: 'Inter', sans-serif;">
+                        All rights reserved © {datetime.now().year} - Powered by <a href="https://inexus.it" target="_blank" style="color: #1E4D92; text-decoration: none; border-bottom: 1px solid rgba(30, 77, 146, 0.3);">iNexus</a>
+                    </div>
+                """, unsafe_allow_html=True)
+
+        if submitted:
+            if topic:
+                st.session_state.topic = topic
+                
+                # Create containers for progress tracking
+                progress_container = st.empty()
+                status_container = st.empty()
+                log_container = st.empty()
+                
+                with st.spinner(""):
+                    progress_bar = progress_container.progress(0)
+                    streamlit_handler = StreamlitHandler(progress_bar, status_container)
+                    logging.getLogger().addHandler(streamlit_handler)
+                    
+                    try:
+                        result = generate_instructions(LLM, topic)
+                        if result.get('plan'):
+                            st.session_state.plan = result['plan']
+                            if result.get('final_doc'):
+                                st.session_state.article = result['final_doc']
+                                st.session_state.writing_complete = True
+                                st.balloons()
+                    except Exception as e:
+                        st.error(f"Si è verificato un errore: {str(e)}")
+                    finally:
+                        logging.getLogger().removeHandler(streamlit_handler)
+                
+                st.rerun()
+            else:
+                st.warning("⚠️ Per favore, inserisci un argomento per continuare")
+    else:
+        # Enhanced sidebar
+        with st.sidebar:
+            # Project sections - solo tab Articolo con stile migliorato
+            tabs = st.tabs(["📄 Articolo"])
+            
+
+            with tabs[0]:
+                if st.session_state.article:
+                    # Stili per l'articolo
+                    st.markdown("""
+                        <style>
+                        .article-container {
+                            background: white;
+                            padding: 2rem;
+                            border-radius: 12px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                            margin: 1rem 0;
+                        }
+                        .article-header {
+                            font-family: 'Inter', sans-serif;
+                            color: #1E4D92;
+                            font-size: 1.8rem;
+                            font-weight: 700;
+                            margin-bottom: 1rem;
+                        }
+                        .article-text {
+                            font-family: 'Inter', sans-serif;
+                            line-height: 1.8;
+                            color: #2C3E50;
+                            font-size: 1.1rem;
+                        }
+                        .article-text p {
+                            margin-bottom: 1.5rem;
+                            text-align: justify;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
+                    
+                    # Mostra solo il contenuto dell'articolo
+                    formatted_article = st.session_state.article.strip()  # Rimuove spazi extra
+                    formatted_article = formatted_article.replace("***", "<h3>").replace("***", "</h3>")
+                    formatted_article = formatted_article.replace("**", "<h2>").replace("**", "</h2>")
+                    formatted_article = formatted_article.replace("*", "<h1>").replace("*", "</h1>")
+                    
+                    # Mostra l'articolo con il pulsante di copia
+                    st.markdown(f"""
+                        <div class="article-container">
+                            <div class="article-text">
+                                {formatted_article}
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.info("Articolo in elaborazione...")
+                        
+        if st.button("🔄 Nuovo Progetto", type="primary"):
+                reset_session_state()
+        
+        # Main content area
+        if st.session_state.writing_complete:
+            st.markdown("""
+                <div class="glass-container fade-in">
+                    <h2 class="section-header">✨ Perfeziona il tuo articolo</h2>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            improvement_prompt = st.text_area(
+                "Suggerisci miglioramenti",
+                placeholder="Es: Vorrei approfondire la sezione su...",
+                help="Descrivi come vorresti migliorare l'articolo",
+                height=100
+            )
+            
+            if st.button("💡 Suggerisci", type="primary"):
+                if improvement_prompt:
+                    with st.spinner("Elaboro le tue richieste..."):
+                        full_prompt = get_improvement_prompt(
+                            st.session_state.topic,
+                            st.session_state.plan,
+                            st.session_state.article,
+                            improvement_prompt
+                        )
+                        
+                        st.session_state.messages.append({
+                            "role": "user",
+                            "content": improvement_prompt
+                        })
+                        
+                        response = LLM.invoke(full_prompt)
+                        
+                        if response:
+                            st.markdown("""
+                                <div class="glass-container">
+                                    <h3 style="color: #1e3a8a;">💡 Suggerimenti di miglioramento:</h3>
+                                    <div style="margin-top: 1rem;">
+                                        {}
+                                    </div>
+                                </div>
+                            """.format(response.content), unsafe_allow_html=True)
+                            
+                            st.session_state.messages.append({
+                                "role": "assistant",
+                                "content": response.content
+                            })
+            
+            # Enhanced chat history
+            if st.session_state.messages:
+                st.markdown("""
+                    <div class="glass-container">
+                        <h3 class="section-header">📜 Cronologia delle revisioni</h3>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                for message in st.session_state.messages:
+                    with st.chat_message(
+                        message["role"],
+                        avatar="👤" if message["role"] == "user" else "🤖"
+                    ):
+                        st.markdown(message["content"])
+
+    # Chiudi il wrapper
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def initialize_session_state():
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    if "topic" not in st.session_state:
+        st.session_state.topic = None
+    if "plan" not in st.session_state:
+        st.session_state.plan = None
+    if "article" not in st.session_state:
+        st.session_state.article = None
+    if "writing_complete" not in st.session_state:
+        st.session_state.writing_complete = False
+
+def reset_session_state():
+    st.session_state.topic = None
+    st.session_state.plan = None
+    st.session_state.article = None
+    st.session_state.messages = []
+    st.session_state.writing_complete = False
+    st.rerun()
+
+def get_improvement_prompt(topic, plan, article, improvement_request):
+    return f"""Sei un editor esperto nella revisione di articoli. 
+    Stai lavorando sulla revisione di un articolo sul tema: {topic}
+
+    STRUTTURA PIANIFICATA:
+    {plan}
+
+    CONTENUTO ATTUALE:
+    {article}
+
+    RICHIESTA DI MODIFICA: 
+    {improvement_request}
+
+    Per favore fornisci suggerimenti specifici e actionable per migliorare l'articolo.
+    Considera:
+    1. Aderenza al piano originale
+    2. Accuratezza e completezza delle informazioni
+    3. Chiarezza e fluidità del testo
+    4. Coerenza con il topic principale
+    5. Eventuali punti mancanti o da approfondire
+
+    Struttura la tua risposta in modo chiaro e specifico, indicando esattamente dove 
+    e come apportare le modifiche suggerite.
+    """
+
 class StreamlitHandler(logging.Handler):
     def __init__(self, progress_placeholder, log_placeholder):
         super().__init__()
@@ -20,7 +271,6 @@ class StreamlitHandler(logging.Handler):
 
     def emit(self, record):
         try:
-            # Filtra i messaggi HTTP
             if "HTTP Request" in record.getMessage():
                 return
                 
@@ -53,200 +303,16 @@ class StreamlitHandler(logging.Handler):
             """
             self.log_placeholder.markdown(status_html, unsafe_allow_html=True)
             
-            # Mostra gli ultimi log in un'area scrollabile
-            self.log_placeholder.code(self.log_text, language=None)
+            # Mostra gli ultimi log in un'area scrollabile con altezza fissa
+            log_html = f"""
+            <div class="log-container">
+                {self.log_text.replace('\n', '<br>')}
+            </div>
+            """
+            self.log_placeholder.markdown(log_html, unsafe_allow_html=True)
             
         except Exception:
             self.handleError(record)
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(message)s'
-)
-
-# Load environment variables
-load_dotenv()
-
-# Initialize LLM Factory and get model instance
-llm_factory = LLMFactory()
-LLM = llm_factory.get_llm(
-        # Seleziona il provider del modello LLM:
-        # - 'huggingface': Utilizza i modelli di HuggingFace Hub (es. StarCoderBase)
-        # - 'claude': Utilizza i modelli di Anthropic Claude
-        # - 'openai': Utilizza i modelli di OpenAI (es. GPT-3.5, GPT-4)
-        # - 'ollama': Utilizza modelli locali tramite Ollama
-        # - 'huggingface': Utilizza modelli su HuggingFace
-        provider='openai',
-        
-        # Specifica il modello da utilizzare:
-        # Per HuggingFace:
-        # - "bigcode/starcoderbase-1b": Versione leggera ottimizzata per Mac M3 (8GB RAM)
-        # Per OpenAI:
-        # - None: Usa il default (gpt-3.5-turbo)
-        # Per Claude:
-        # - None: Usa il default (claude-3-sonnet-20240229)
-        # Per Ollama:
-        # - "mistral": Modello Mistral base
-        # - "llama3.2": Modello Llama 2
-        # Per HuggingFace_
-        # - "HFModels.LLAMA.value": modello llama3.2
-        model=None,
-        
-        # Controlla la creatività del modello:
-        # - 0.0: Risposte più deterministiche e conservative
-        # - 1.0: Risposte più creative e variabili
-        # - 0.1: Valore basso consigliato per compiti di programmazione
-        temperature=0.7
-)
-
-def initialize_session_state():
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-    if "topic" not in st.session_state:
-        st.session_state.topic = None
-    if "plan" not in st.session_state:
-        st.session_state.plan = None
-    if "article" not in st.session_state:
-        st.session_state.article = None
-    if "writing_complete" not in st.session_state:
-        st.session_state.writing_complete = False
-
-def main_chat():
-    st.title("💭 iNexus for Writing")
-    st.markdown("### Your AI Article Writing Assistant")
-    
-    initialize_session_state()
-    
-    # Topic selection if not already chosen
-    if not st.session_state.topic:
-        st.markdown("### 📝 Prima di iniziare")
-        topic = st.text_input("Su quale argomento dobbiamo scrivere l'articolo?")
-        
-        if st.button("Inizia", type="primary"):
-            if topic:
-                st.session_state.topic = topic
-                
-                # Crea container per progress bar e log
-                progress_placeholder = st.empty()
-                status_placeholder = st.empty()
-                log_placeholder = st.empty()
-                
-                with st.spinner("Generazione in corso..."):
-                    progress_bar = progress_placeholder.progress(0)
-                    streamlit_handler = StreamlitHandler(progress_bar, status_placeholder)
-                    logging.getLogger().addHandler(streamlit_handler)
-                    
-                    try:
-                        result = generate_instructions(LLM, topic)
-                        
-                        if result.get('plan'):
-                            st.session_state.plan = result['plan']
-                            if result.get('final_doc'):
-                                st.session_state.article = result['final_doc']
-                                st.session_state.writing_complete = True
-                                st.balloons()
-                                # Rimossi i messaggi di sistema
-                        
-                    except Exception as e:
-                        st.error(f"Errore durante la generazione: {str(e)}")
-                    
-                    finally:
-                        logging.getLogger().removeHandler(streamlit_handler)
-                
-                st.rerun()
-            else:
-                st.warning("Per favore, inserisci un argomento")
-    else:
-        # Sidebar con piano e articolo
-        with st.sidebar:
-            st.markdown(f"**Argomento:** {st.session_state.topic}")
-            
-            with st.expander("📋 Piano dell'Articolo", expanded=True):
-                if st.session_state.plan:  # Verifica che il piano esista
-                    st.text_area(
-                        label="Piano dell'Articolo",
-                        value=st.session_state.plan,
-                        height=300,
-                        key="piano_text"
-                    )
-                    st.download_button(
-                        label="📥 Download Piano",
-                        data=st.session_state.plan or "",  # Fornisce stringa vuota come fallback
-                        file_name=f"piano_{st.session_state.topic.lower().replace(' ', '_')}.md",
-                        mime="text/markdown",
-                        key="download_piano"
-                    )
-                else:
-                    st.info("Piano non ancora generato")
-            
-            with st.expander("📄 Articolo Completo", expanded=True):
-                if st.session_state.article:  # Verifica che l'articolo esista
-                    st.text_area(
-                        label="Articolo Completo",
-                        value=st.session_state.article,
-                        height=500,
-                        key="articolo_text"
-                    )
-                    st.download_button(
-                        label="📥 Download Articolo",
-                        data=st.session_state.article or "",  # Fornisce stringa vuota come fallback
-                        file_name=f"articolo_{st.session_state.topic.lower().replace(' ', '_')}.md",
-                        mime="text/markdown",
-                        key="download_articolo"
-                    )
-                else:
-                    st.info("Articolo non ancora generato")
-            
-            if st.button("Cambia Argomento", type="primary"):
-                st.session_state.topic = None
-                st.session_state.plan = None
-                st.session_state.article = None
-                st.session_state.messages = []
-                st.session_state.writing_complete = False
-                st.rerun()
-        
-        # Area principale per la chat
-        if st.session_state.writing_complete:
-            st.markdown("### 💬 Suggerisci miglioramenti")
-            if prompt := st.text_input("Come miglioreresti questo articolo?", key="improvement_input"):
-                with st.spinner("Elaboro le modifiche..."):
-                    # Prompt migliorato e più specifico
-                    full_prompt = f"""Sei un editor esperto nella revisione di articoli. 
-                    Stai lavorando sulla revisione di un articolo sul tema: {st.session_state.topic}
-
-                    STRUTTURA GIA' PIANIFICATA E PRESENTE NEL CONTENUTO:
-                    {st.session_state.plan}
-
-                    RICHIESTA DI MODIFICA:
-                    {prompt}
-
-                    Per favore fornisci suggerimenti specifici e actionable per migliorare l'articolo.
-                    Considera:
-                    1. Aderenza al piano originale
-                    2. Accuratezza e completezza delle informazioni
-                    3. Chiarezza e fluidità del testo
-                    4. Coerenza con il topic principale
-                    5. Eventuali punti mancanti o da approfondire
-
-                    Struttura la tua risposta in modo chiaro e specifico, indicando esattamente dove 
-                    e come apportare le modifiche suggerite.
-                    """
-                    
-                    st.session_state.messages.append({"role": "user", "content": prompt})
-                    response = LLM.invoke(full_prompt)
-                    
-                    if response:
-                        st.markdown("#### Suggerimenti di miglioramento:")
-                        st.markdown(response.content)
-                        st.session_state.messages.append(
-                            {"role": "assistant", "content": response.content}
-                        )
-            
-            # Mostra la storia della chat
-            for message in st.session_state.messages:
-                with st.chat_message(message["role"]):
-                    st.markdown(message["content"])
 
 if __name__ == "__main__":
     main_chat()

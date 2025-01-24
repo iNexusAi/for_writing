@@ -1,0 +1,264 @@
+/* Override Streamlit's default container width */
+.stApp {
+    background: linear-gradient(135deg, #f6f9fc 0%, #ffffff 100%);
+    max-width: 100% !important;
+    padding: 0 !important;
+    overflow-x: hidden;
+    margin: 0 auto;
+}
+
+/* Reset Streamlit's default block container */
+.block-container {
+    max-width: 1800px !important;  /* Larghezza massima contenuta */
+    margin: 0 auto !important;
+    padding: 0 4rem !important;  /* Padding laterale */
+    border-left: 1px solid rgba(30, 77, 146, 0.1);
+    border-right: 1px solid rgba(30, 77, 146, 0.1);
+    background: linear-gradient(to right, 
+        rgba(255,255,255,0.95), 
+        rgba(255,255,255,0.98) 15%, 
+        rgba(255,255,255,0.98) 85%, 
+        rgba(255,255,255,0.95)
+    );
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.03);
+}
+
+/* Glassmorphism effect */
+.glass-container {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(30, 77, 146, 0.1);
+    border-radius: 16px;
+    margin: 2rem auto;
+    padding: 4rem;
+    width: 100% !important;
+    max-width: 1600px !important;
+}
+
+/* Main header styling */
+.main-header {
+    background: linear-gradient(135deg, #2B3A67 0%, #1E4D92 100%);
+    padding: 4rem 4rem;
+    width: 100% !important;
+    margin: 0 auto !important;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.main-header h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 4.5rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 2rem;
+    text-align: center;
+    line-height: 1.2;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.main-header p {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.8rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 1200px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-header {
+        padding: 3rem 1rem;
+        min-height: 300px;
+    }
+    
+    .main-header h1 {
+        font-size: 3.5rem;
+    }
+    
+    .main-header p {
+        font-size: 1.4rem;
+    }
+}
+
+/* Input field styling */
+.stTextInput > div > div > input {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.stTextInput > div > div > input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Form layout */
+form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Stile specifico per il pulsante del form */
+div[data-testid="stFormSubmitButton"] button,
+.stButton > button,
+button[kind="primary"],
+.stButton > button[data-baseweb="button"],
+.stButton > button.stBtn--primary,
+.stButton button,
+.stButton > button:hover,
+.stButton > button:active,
+.stButton > button:focus,
+.stButton > button[data-baseweb="button"]:hover,
+.stButton > button:first-child {
+    background: linear-gradient(135deg, #2B3A67 0%, #1E4D92 100%) !important;
+    background-color: #1E4D92 !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 2rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: none !important;
+    font-size: 1.2rem !important;
+    letter-spacing: 0.5px !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Stile specifico per il testo del pulsante */
+div[data-testid="stFormSubmitButton"] button p,
+.stButton > button p,
+button[kind="primary"] p {
+    font-size: 1.2rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.5 !important;
+}
+
+/* Hover state */
+.stButton > button:hover,
+button[kind="primary"]:hover,
+.stButton > button[data-baseweb="button"]:hover,
+.stButton > button.stBtn--primary:hover,
+div[data-testid="stFormSubmitButton"] button:hover {
+    background: linear-gradient(135deg, #1E4D92 0%, #2B3A67 100%) !important;
+    box-shadow: 0 4px 15px rgba(43, 58, 103, 0.3) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Active state */
+.stButton > button:active,
+button[kind="primary"]:active,
+.stButton > button[data-baseweb="button"]:active,
+.stButton > button.stBtn--primary:active {
+    transform: translateY(0px) !important;
+    box-shadow: 0 2px 8px rgba(43, 58, 103, 0.2) !important;
+}
+
+/* Progress bar styling */
+.stProgress > div > div > div {
+    background: linear-gradient(90deg, #3b82f6 0%, #1e3a8a 100%);
+    height: 8px;
+    border-radius: 4px;
+}
+
+/* Status card styling */
+.status-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-left: 6px solid #3b82f6;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Sidebar styling */
+.css-1d391kg {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-right: 1px solid #e2e8f0;
+}
+
+/* Chat message styling */
+.stChatMessage {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Tooltip styling */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: #1e3a8a;
+    color: white;
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Project card styling */
+.project-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+/* Section headers */
+.section-header {
+    color: #1e3a8a;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid #3b82f6;
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+
+
+
