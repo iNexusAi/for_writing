@@ -269,16 +269,15 @@ class StreamlitHandler(logging.Handler):
         self.total_sections = 0
         self.completed_sections = 0
 
-# Replace the problematic part in the emit method:
+    # Replace the problematic part in the emit method:
     def emit(self, record):
         try:
             if "HTTP Request" in record.getMessage():
                 return
                 
             log_entry = self.format(record)
-            self.log_text = log_entry + "\n" + self.log_text  # Aggiunge nuovi log in cima
+            self.log_text = log_entry + "\n" + self.log_text
             
-            # Aggiorna progress bar e stato
             if "PLANNING THE WRITING" in log_entry:
                 self.progress_placeholder.progress(0.2)
                 self.current_section = "📝 Pianificazione in corso..."
@@ -296,21 +295,10 @@ class StreamlitHandler(logging.Handler):
                 self.progress_placeholder.progress(1.0)
                 self.current_section = "💾 Salvataggio completato!"
 
-            # Aggiorna status e log - Fixed version
-            status_html = (
-                '<div style="padding: 10px; border-radius: 5px; '
-                'background-color: #f0f2f6; margin-bottom: 10px">'
-                f'<h3 style="color: #0066cc; margin: 0;">Status: {self.current_section}</h3>'
-                '</div>'
-            )
+            status_html = '<div style="padding: 10px; border-radius: 5px; background-color: #f0f2f6; margin-bottom: 10px"><h3 style="color: #0066cc; margin: 0;">Status: ' + self.current_section + '</h3></div>'
             self.log_placeholder.markdown(status_html, unsafe_allow_html=True)
             
-            # Mostra gli ultimi log in un'area scrollabile con altezza fissa - Fixed version
-            log_html = (
-                '<div class="log-container">'
-                f'{self.log_text.replace("\n", "<br>")}'
-                '</div>'
-            )
+            log_html = '<div class="log-container">' + self.log_text.replace("\n", "<br>") + '</div>'
             self.log_placeholder.markdown(log_html, unsafe_allow_html=True)
             
         except Exception:
