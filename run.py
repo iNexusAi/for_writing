@@ -269,7 +269,7 @@ class StreamlitHandler(logging.Handler):
         self.total_sections = 0
         self.completed_sections = 0
 
-    # Replace the problematic part in the emit method:
+    # Replace # 3 the problematic part in the emit method:
     def emit(self, record):
         try:
             if "HTTP Request" in record.getMessage():
