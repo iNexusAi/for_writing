@@ -131,9 +131,6 @@ def main_chat():
                     
                     # Mostra solo il contenuto dell'articolo
                     formatted_article = st.session_state.article.strip()  # Rimuove spazi extra
-                    formatted_article = formatted_article.replace("***", "<h3>").replace("***", "</h3>")
-                    formatted_article = formatted_article.replace("**", "<h2>").replace("**", "</h2>")
-                    formatted_article = formatted_article.replace("*", "<h1>").replace("*", "</h1>")
                     
                     # Mostra l'articolo con il pulsante di copia
                     st.markdown(f"""
@@ -303,6 +300,6 @@ class StreamlitHandler(logging.Handler):
             
         except Exception:
             self.handleError(record)
-
+# Change 4
 if __name__ == "__main__":
     main_chat()
