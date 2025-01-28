@@ -280,7 +280,7 @@ button[kind="primary"]:active,
     color: #111827;
     margin-bottom: 0.5rem;
     font-size: 3rem;
-    font-weight: 700;
+    font-weight: 300;
     letter-spacing: -0.025em;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
