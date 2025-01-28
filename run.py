@@ -23,16 +23,13 @@ def main_chat():
     # Wrapper per il contenuto principale
     st.markdown('<div class="main-content">', unsafe_allow_html=True)
     
-    # Enhanced header
+    # Enhanced header con nuovo stile
     st.markdown("""
-        <div class="main-header">
+        <div class="title-box">
             <h1>✍️ iNexus Writer Pro</h1>
-            <p style="color:#fff; margin-top:-2.5rem;">AI Powered by <a href="https://inexus.it" target="_blank" style="color:#fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.5); padding-bottom: 2px;">iNexus</a></p>    
-            <h3 style="color:#fff; margin-top: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 400; font-size: 1.4rem; opacity: 0.9;">
-                Genera contenuti ottimizzati e professionali con tecnologie AI all'avanguardia
-            </h3>
+            <p>AI Powered by <a href="https://inexus.it" target="_blank">iNexus</a></p>    
+            <h3>Genera contenuti ottimizzati e professionali con tecnologie AI all'avanguardia</h3>
         </div>
-        <div style="margin-bottom: 4rem;"></div>
     """, unsafe_allow_html=True)
     
     if not st.session_state.topic:

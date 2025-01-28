@@ -1,3 +1,11 @@
+/* 1. Import font all'inizio del file */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/* 2. Applica il font globalmente */
+* {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
 /* Override Streamlit's default container width */
 .stApp {
     background: linear-gradient(135deg, #f6f9fc 0%, #ffffff 100%);
@@ -257,6 +265,53 @@ button[kind="primary"]:active,
     border-bottom: 3px solid #3b82f6;
     padding-bottom: 0.5rem;
     display: inline-block;
+}
+
+/* 3. Specifica il font per elementi specifici */
+.title-box {
+    border-bottom: 1px solid rgba(49, 51, 63, 0.1);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.title-box h1 {
+    color: #111827;
+    margin-bottom: 0.5rem;
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.title-box p {
+    color: #6B7280;
+    font-size: 1.125rem;
+    margin: 1rem auto;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.title-box a {
+    color: #3B82F6;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.title-box h3 {
+    color: #4B5563;
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-top: 0.75rem;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* 4. Override Streamlit defaults */
+.stMarkdown, 
+.stButton > button,
+.stTextInput > div > div > input,
+[data-testid="stForm"] {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
 
